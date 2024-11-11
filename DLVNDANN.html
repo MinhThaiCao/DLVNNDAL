@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đi Làm Vì Mọi Người Đừng Ai Nghỉ Nhé</title>
+    <style>
+        body {
+            background-color: #f8f8ff;
+            color: #333;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #ff69b4;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: auto;
+            background-color: #add8e6;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            font-weight: bold;
+            color: #ff69b4;
+        }
+
+        input, button {
+            padding: 10px;
+            margin-top: 5px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        button {
+            cursor: pointer;
+            background-color: #ff69b4;
+            color: white;
+            border: none;
+        }
+
+        .person-card {
+            background-color: #ffffff;
+            margin-top: 10px;
+            padding: 15px;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .person-card img {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            margin-right: 15px;
+            object-fit: cover;
+        }
+
+        .person-info {
+            flex-grow: 1;
+        }
+
+        .actions button {
+            background-color: #ff69b4;
+            margin-left: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Đi Làm Vì Mọi Người Đừng Ai Nghỉ Nhé</h1>
+    <div class="container">
+        <div class="form-group">
+            <label for="name">Tên:</label>
+            <input type="text" id="name" placeholder="Nhập tên">
+        </div>
+        <div class="form-group">
+            <label for="image">Chọn ảnh:</label>
+            <input type="file" id="image" accept="image/*">
+        </div>
+        <div class="form-group">
+            <label for="link">Đường link:</label>
+            <input type="text" id="link" placeholder="Nhập đường link">
+        </div>
+        <button onclick="addPerson()">Thêm người</button>
+
+        <div id="peopleList"></div>
+    </div>
+
+    <script>
+        let people = [];
+
+        function renderPeople() {
+            const peopleList = document.getElementById('peopleList');
+            peopleList.innerHTML = '';
+            people.forEach((person, index) => {
+                const personCard = document.createElement('div');
+                personCard.className = 'person-card';
+
+                const personInfo = document.createElement('div');
+                personInfo.className = 'person-info';
+                personInfo.innerHTML = `<strong>${person.name}</strong>`;
+
+                const personImage = document.createElement('img');
+                personImage.src = person.image;
+                personImage.alt = person.name;
+
+                const personLink = document.createElement('a');
+                personLink.href = person.link;
+                personLink.target = '_blank';
+                personLink.appendChild(personImage);
+
+                const actions = document.createElement('div');
+                actions.className = 'actions';
+
+                const editButton = document.createElement('button');
+                editButton.textContent = 'Sửa';
+                editButton.onclick = () => editPerson(index);
+
+                const deleteButton = document.createElement('button');
+                deleteButton.textContent = 'Xóa';
+                deleteButton.onclick = () => deletePerson(index);
+
+                actions.appendChild(editButton);
+                actions.appendChild(deleteButton);
+
+                personCard.appendChild(personLink);
+                personCard.appendChild(personInfo);
+                personCard.appendChild(actions);
+
+                peopleList.appendChild(personCard);
+            });
+        }
+
+        function addPerson() {
+            const nameInput = document.getElementById('name');
+            const imageInput = document.getElementById('image');
+            const linkInput = document.getElementById('link');
+
+            if (nameInput.value && imageInput.files[0] && linkInput.value) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    people.push({
+                        name: nameInput.value,
+                        image: e.target.result,
+                        link: linkInput.value
+                    });
+                    nameInput.value = '';
+                    imageInput.value = '';
+                    linkInput.value = '';
+                    renderPeople();
+                };
+                reader.readAsDataURL(imageInput.files[0]);
+            }
+        }
+
+        function editPerson(index) {
+            const newName = prompt('Nhập tên mới:', people[index].name);
+            const newLink = prompt('Nhập đường link mới:', people[index].link);
+            const newImageInput = document.createElement('input');
+            newImageInput.type = 'file';
+            newImageInput.accept = 'image/*';
+            newImageInput.onchange = function () {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    if (newName && newLink) {
+                        people[index].name = newName;
+                        people[index].link = newLink;
+                        people[index].image = e.target.result;
+                        renderPeople();
+                    }
+                };
+                reader.readAsDataURL(newImageInput.files[0]);
+            };
+
+            document.body.appendChild(newImageInput);
+            newImageInput.click();
+            document.body.removeChild(newImageInput);
+        }
+
+        function deletePerson(index) {
+            people.splice(index, 1);
+            renderPeople();
+        }
+    </script>
+</body>
+</html>
